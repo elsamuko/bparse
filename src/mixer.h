@@ -1,21 +1,24 @@
-#ifndef MIXER_H
-#define MIXER_H
+#ifndef Mixer_H
+#define Mixer_H
 
 #include <boost/fusion/include/adapt_struct.hpp>
+#include <boost/fusion/container/vector/convert.hpp>
 #include <boost/fusion/include/io.hpp>
 
-struct mixer {
+struct Mixer {
     float r;
     float g;
     float b;
-    mixer() : r( 0 ), g( 0 ), b( 0 ) {}
+    Mixer() : r( 0 ), g( 0 ), b( 0 ) {}
 };
 
 BOOST_FUSION_ADAPT_STRUCT(
-    mixer,
+    Mixer,
     ( float, r )
     ( float, g )
     ( float, b )
 )
 
-#endif // MIXER_H
+
+
+#endif // Mixer_H

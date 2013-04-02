@@ -13,41 +13,44 @@ namespace phoenix = boost::phoenix;
 using qi::_1;
 using qi::lit;
 using qi::float_;
-using ascii::space;
 using ascii::no_case;
 using phoenix::ref;
 
-template <typename T>
-qi::rule<T, float, ascii::space_type> color( std::string name, float& f, bool& ok ) {
-    qi::rule<T, float, ascii::space_type> c;
+template <typename Iterator>
+qi::rule<Iterator, float, ascii::space_type> parseColor( std::string name, float& f, bool& ok ) {
+    qi::rule<Iterator, float, ascii::space_type> c;
 
-    // e.g.             r                                  =                   45.0           ;
-    c %= no_case[lit( name )][ ref( ok ) = true ] >> lit( "=" ) >> float_[ ref( f ) = _1] >> ';';
+    // e.g.            r                                    =                   45.0            ;
+    c = no_case[ lit( name ) ][ ref( ok ) = true ] >> lit( "=" ) >> float_[ ref( f ) = _1 ] >> ';';
     return c;
 }
 
-template <typename Iterator>
-std::string parseMixer( Iterator first, Iterator last, mixer& m ) {
+template <typename StringT>
+std::string parseMixer( const StringT& in, Mixer& m ) {
 
     std::string error;
+
+    typedef typename StringT::const_iterator Iterator;
+    Iterator first = in.begin();
+    Iterator last  = in.end();
 
     typedef qi::rule<Iterator, float, ascii::space_type> rule;
     bool rok = false;
     bool gok = false;
     bool bok = false;
 
-    rule red   = color<Iterator>( "r", m.r, rok );
-    rule green = color<Iterator>( "g", m.g, gok );
-    rule blue  = color<Iterator>( "b", m.b, bok );
+    rule red   = parseColor<Iterator>( "r", m.r, rok );
+    rule green = parseColor<Iterator>( "g", m.g, gok );
+    rule blue  = parseColor<Iterator>( "b", m.b, bok );
 
     bool ok = phrase_parse( first, last,
                             (
-                                no_case[ lit( "bs::mixer;" ) ]
+                                no_case[ lit( "bs::Mixer;" ) ]
                                 >> ( red | green | blue )
                                 >> ( red | green | blue )
                                 >> ( red | green | blue )
                             ),
-                            space );
+                            ascii::space );
 
     if( !ok ) {
         error += "Could not parse expression\n";
